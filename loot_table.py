@@ -3,7 +3,7 @@ from pathlib import Path
 import random
 
 ROOT = Path(__file__).parent.resolve()
-TABLE_DIR = ROOT / "loot-tables"
+TABLE_DIR = ROOT / "loot-tables-1-16"
 
 
 class Item:
@@ -23,10 +23,35 @@ class EnchantedItem(Item):
         self.enchantment, self.level = self.get_enchantment()
 
     def get_enchantment(self) -> tuple[str, int]:
-        pass
+        return "", 1
 
     def __repr__(self) -> str:
         return f"Item : {self.name} : {self.enchantment} {'I' * self.level}"
+
+
+class ItemGroup:
+
+    def __init__(self, items: list[Item]):
+        self.items = [item for item in items if not isinstance(item, EnchantedItem)]
+        self.enchanted_items = [item for item in items if isinstance(item, EnchantedItem)]
+        self.combine_stacks()
+
+    def combine_stacks(self):
+        combined_items = {}
+        for item in self.items:
+            if item.name in combined_items:
+                combined_items[item.name].count += item.count
+            else:
+                combined_items[item.name] = item
+
+        self.items = list(combined_items.values())
+
+    def __repr__(self) -> str:
+        return (
+            f"ItemGroup"
+            f"\n{'\n'.join(str(item) for item in self.items)}"
+            f"\n{'\n'.join(str(item) for item in self.enchanted_items)}"
+        )
 
 
 class Loot:
@@ -87,7 +112,7 @@ class LootTable:
         self.loots.append(loot)
         self.weights.append(loot.weight)
 
-    def generate(self) -> list[Item]:
+    def generate(self) -> ItemGroup:
         num_rolls = random.randint(self.min_rolls, self.max_rolls)
         chosen_loot = random.choices(
             self.loots,
@@ -95,7 +120,8 @@ class LootTable:
             k=num_rolls
         )
         items = [loot.generate() for loot in chosen_loot]
-        return items
+        item_group = ItemGroup(items)
+        return item_group
 
     def __repr__(self) -> str:
         return (
