@@ -23,7 +23,19 @@ class EnchantedItem(Item):
         self.enchantment, self.level = self.get_enchantment()
 
     def get_enchantment(self) -> tuple[str, int]:
-        return "", 1
+        with open("enchantment.json") as fp:
+            enchantment_info = json.load(fp)
+        possible_enchants = [
+            enchantment
+            for enchantment in enchantment_info
+            if (
+                "any" in enchantment_info[enchantment]["applicable"] or 
+                any(item in self.name for item in enchantment_info[enchantment]["applicable"])
+            )
+        ]
+        selected_enchant = random.choice(possible_enchants)
+        selected_level = random.randint(1, enchantment_info[selected_enchant]["level"])
+        return selected_enchant, selected_level
 
     def __repr__(self) -> str:
         return f"Item : {self.name} : {self.enchantment} {'I' * self.level}"

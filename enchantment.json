@@ -1,0 +1,278 @@
+{
+    "aqua_affinity": {
+        "applicable": [
+            "helmet"
+        ],
+        "level": 1
+    },
+    "bane_of_arthropods": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 5
+    },
+    "blast_protection": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 4
+    },
+    "breach": {
+        "applicable": [
+            "mace"
+        ],
+        "level": 4
+    },
+    "channeling": {
+        "applicable": [
+            "trident"
+        ],
+        "level": 1
+    },
+    "binding_curse": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 1
+    },
+    "vanishing_curse": {
+        "applicable": [
+            "any"
+        ],
+        "level": 1
+    },
+    "density": {
+        "applicable": [
+            "mace"
+        ],
+        "level": 5
+    },
+    "depth_strider": {
+        "applicable": [
+            "boots"
+        ],
+        "level": 3
+    },
+    "efficiency": {
+        "applicable": [
+            "pickaxe",
+            "axe",
+            "shovel",
+            "hoe"
+        ],
+        "level": 5
+    },
+    "feather_falling": {
+        "applicable": [
+            "boots"
+        ],
+        "level": 4
+    },
+    "fire_aspect": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 2
+    },
+    "fire_protection": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 4
+    },
+    "flame": {
+        "applicable": [
+            "bow"
+        ],
+        "level": 2
+    },
+    "fortune": {
+        "applicable": [
+            "pickaxe",
+            "axe",
+            "shovel",
+            "hoe"
+        ],
+        "level": 3
+    },
+    "frost_walker": {
+        "applicable": [
+            "boots"
+        ],
+        "level": 2
+    },
+    "impaling": {
+        "applicable": [
+            "trident"
+        ],
+        "level": 5
+    },
+    "infinity": {
+        "applicable": [
+            "bow"
+        ],
+        "level": 1
+    },
+    "knockback": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 2
+    },
+    "looting": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 3
+    },
+    "loyalty": {
+        "applicable": [
+            "trident"
+        ],
+        "level": 3
+    },
+    "luck_of_the_sea": {
+        "applicable": [
+            "rod"
+        ],
+        "level": 3
+    },
+    "lure": {
+        "applicable": [
+            "rod"
+        ],
+        "level": 3
+    },
+    "mending": {
+        "applicable": [
+            "any"
+        ],
+        "level": 1
+    },
+    "multishot": {
+        "applicable": [
+            "crossbow"
+        ],
+        "level": 1
+    },
+    "piercing": {
+        "applicable": [
+            "crossbow"
+        ],
+        "level": 4
+    },
+    "power": {
+        "applicable": [
+            "bow"
+        ],
+        "level": 5
+    },
+    "projectile_protection": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 4
+    },
+    "protection": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 4
+    },
+    "punch": {
+        "applicable": [
+            "bow"
+        ],
+        "level": 2
+    },
+    "quick_charge": {
+        "applicable": [
+            "crossbow"
+        ],
+        "level": 3
+    },
+    "respiration": {
+        "applicable": [
+            "helmet"
+        ],
+        "level": 3
+    },
+    "riptide": {
+        "applicable": [
+            "trident"
+        ],
+        "level": 3
+    },
+    "sharpness": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 5
+    },
+    "silk_touch": {
+        "applicable": [
+            "pickaxe"
+        ],
+        "level": 1
+    },
+    "smite": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 5
+    },
+    "soul_speed": {
+        "applicable": [
+            "boots"
+        ],
+        "level": 3
+    },
+    "sweeping_edge": {
+        "applicable": [
+            "sword"
+        ],
+        "level": 3
+    },
+    "swift_sneak": {
+        "applicable": [
+            "leggings"
+        ],
+        "level": 3
+    },
+    "thorns": {
+        "applicable": [
+            "helmet",
+            "chestplate",
+            "leggings",
+            "boots"
+        ],
+        "level": 3
+    },
+    "unbreaking": {
+        "applicable": [
+            "any"
+        ],
+        "level": 3
+    },
+    "wind_burst": {
+        "applicable": [
+            "mace"
+        ],
+        "level": 3
+    }
+}

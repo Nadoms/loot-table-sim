@@ -3,9 +3,6 @@ from pathlib import Path
 from loot_table import *
 
 
-
-
-
 def main():
     table_path = TABLE_DIR / "ruined_portal.json"
     table = read_table(table_path)
