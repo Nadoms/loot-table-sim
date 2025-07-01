@@ -20,12 +20,12 @@ def parse_items(str_items: list[str]) -> list[Item]:
     items = []
     for str_item in str_items:
         item_info = str_item.split(":")
-        name = f"minecraft:{item_info[0]}"
+        name = item_info[0]
 
         if len(item_info) == 1:
             item = Item(name=name)
         else:
-            enchantment = f"minecraft:{item_info[1]}"
+            enchantment = item_info[1]
             item = EnchantedItem(name=name, enchantment=enchantment)
         items.append(item)
 
@@ -39,6 +39,7 @@ def analyse_groups(
     ench_items: list[EnchantedItem]
 ):
     combo = ItemCombo(*items)
+    combo.compare(groups)
     print(combo)
 
 
@@ -46,21 +47,27 @@ class ItemCombo:
 
     def __init__(self, *items: Item):
         self.items = items
+        self.combos : list[list[Item]]
         self.generate_combinations()
 
     def generate_combinations(self):
-        combos = []
+        self.combos = []
         for r in range(1, len(self.items) + 1):
-            combos.extend(itertools.combinations(self.items, r))
-        self.combos = [list(combo) for combo in combos]
+            self.combos.extend(itertools.combinations(self.items, r))
 
     def compare(self, groups: list[ItemGroup]):
-        pass
+        self.appearances = [0] * len(self.combos)
+        for i, combo in enumerate(self.combos):
+            combo_absent = False
+            for group in groups:
+                if any(combo_item not in group.all_items for combo_item in combo):
+                    continue
+                self.appearances[i] += 1
 
     def __repr__(self):
         return (
             f"ItemCombo"
-            f"\n{'\n'.join(str(combo) for combo in self.combos)}"
+            f"\n{'\n'.join(str(self.appearances[i]) + 'x : ' + str(self.combos[i]) for i in range(len(self.combos)))}"
         )
 
 

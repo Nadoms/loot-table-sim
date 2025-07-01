@@ -16,8 +16,16 @@ class Item:
     def id(self) -> str:
         return f"Item : {self.name}"
 
+    def __eq__(self, other):
+        if not isinstance(other, Item):
+            return False
+        return self.name == other.name
+
     def __repr__(self) -> str:
-        return f"{self.id} : {self.count}x"
+        return (
+            f"{self.id}"
+            f"{' : ' + str(self.count) + 'x' if self.count != 1 else ''}"
+        )
 
 
 class EnchantedItem(Item):
@@ -46,7 +54,7 @@ class EnchantedItem(Item):
                 any(item in self.name for item in enchantment_info[enchantment]["applicable"])
             )
         ]
-        selected_enchant = random.choice(possible_enchants)
+        selected_enchant = random.choice(possible_enchants).replace("minecraft:", "")
         selected_level = random.randint(1, enchantment_info[selected_enchant]["level"])
         return selected_enchant, selected_level
 
@@ -57,10 +65,21 @@ class EnchantedItem(Item):
             f"{self.enchantment} {'I' * self.level}"
         )
 
-    def __repr__(self) -> str:
+    def same_enchanted_item(self, other):
+        if not isinstance(other, EnchantedItem):
+            return False
         return (
-            f"{self.id}"
-            f"{' : ' + str(self.count) + 'x' if self.count != 1 else ''}"
+            self.name == other.name
+            and self.enchantment == other.enchantment
+        )
+
+    def __eq__(self, other):
+        if not isinstance(other, EnchantedItem):
+            return False
+        return (
+            self.name == other.name
+            and self.enchantment == other.enchantment
+            and self.level == other.level
         )
 
 
@@ -103,6 +122,10 @@ class ItemGroup:
 
         self.items = list(combined_items.values())
         self.enchanted_items = list(combined_ench_items.values())
+
+    @property
+    def all_items(self) -> list[Item]:
+        return self.items + self.enchanted_items
 
     def __add__(self, other):
         if not isinstance(other, ItemGroup):
@@ -202,7 +225,7 @@ class LootTable:
 
 def read_entry(entry: dict) -> Loot:
     functions = [function_data["function"] for function_data in entry.get("functions", [])]
-    name = entry["name"]
+    name = entry["name"].replace("minecraft:", "")
     weight = entry.get("weight", 1)
     if "minecraft:set_count" in functions:
         loot = StackableLoot(
