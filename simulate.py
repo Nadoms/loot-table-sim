@@ -24,9 +24,13 @@ def parse_items(str_items: list[str]) -> list[Item]:
 
         if len(item_info) == 1:
             item = Item(name=name)
-        else:
-            enchantment = item_info[1]
-            item = EnchantedItem(name=name, enchantment=enchantment)
+        elif len(item_info) == 2:
+            count = int(item_info[1])
+            item = Item(name=name, count=count)
+        elif len(item_info) == 3:
+            count = int(item_info[1])
+            enchantment = item_info[2]
+            item = EnchantedItem(name=name, count=count, enchantment=enchantment)
         items.append(item)
 
     return items
@@ -58,11 +62,16 @@ class ItemCombo:
     def compare(self, groups: list[ItemGroup]):
         self.appearances = [0] * len(self.combos)
         for i, combo in enumerate(self.combos):
-            combo_absent = False
             for group in groups:
-                if any(combo_item not in group.all_items for combo_item in combo):
-                    continue
-                self.appearances[i] += 1
+                combo_absent = False
+                for combo_item in combo:
+                    for group_item in group.all_items:
+                        if combo_item == group_item and combo_item.count <= group_item.count:
+                            break
+                    else:
+                        combo_absent = True
+                if not combo_absent:
+                    self.appearances[i] += 1
 
     def __repr__(self):
         return (

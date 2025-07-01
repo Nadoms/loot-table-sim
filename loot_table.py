@@ -33,10 +33,11 @@ class EnchantedItem(Item):
     def __init__(
         self,
         name: str,
+        count: int = 1,
         enchantment: str | None = None,
         level: int = 1,
     ):
-        super().__init__(name, 1)
+        super().__init__(name, count)
         if enchantment is not None:
             self.enchantment = enchantment
             self.level = level
