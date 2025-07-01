@@ -12,8 +12,12 @@ class Item:
         self.name = name
         self.count = count
 
+    @property
+    def id(self) -> str:
+        return f"Item : {self.name}"
+
     def __repr__(self) -> str:
-        return f"Item : {self.name} : {self.count}x"
+        return f"{self.id} : {self.count}x"
 
 
 class EnchantedItem(Item):
@@ -37,15 +41,32 @@ class EnchantedItem(Item):
         selected_level = random.randint(1, enchantment_info[selected_enchant]["level"])
         return selected_enchant, selected_level
 
+    @property
+    def id(self) -> str:
+        return (
+            f"EnchantedItem : {self.name} : "
+            f"{self.enchantment} {'I' * self.level}"
+        )
+
     def __repr__(self) -> str:
-        return f"Item : {self.name} : {self.enchantment} {'I' * self.level}"
+        return (
+            f"{self.id}"
+            f"{' : ' + str(self.count) + 'x' if self.count != 1 else ''}"
+        )
 
 
 class ItemGroup:
 
-    def __init__(self, items: list[Item]):
-        self.items = [item for item in items if not isinstance(item, EnchantedItem)]
-        self.enchanted_items = [item for item in items if isinstance(item, EnchantedItem)]
+    def __init__(
+        self,
+        items: list[Item] = [],
+        regular_items: list[Item] = [],
+        enchanted_items: list[EnchantedItem] = [],
+        rolls: int = 0,
+    ):
+        self.items = [item for item in items if not isinstance(item, EnchantedItem)] + regular_items
+        self.enchanted_items = [item for item in items if isinstance(item, EnchantedItem)] + enchanted_items
+        self.rolls = rolls
         self.combine_stacks()
 
     def combine_stacks(self):
@@ -56,11 +77,31 @@ class ItemGroup:
             else:
                 combined_items[item.name] = item
 
+        combined_ench_items = {}
+        for ench_item in self.enchanted_items:
+            if ench_item.id in combined_ench_items:
+                combined_ench_items[ench_item.id].count += ench_item.count
+            else:
+                combined_ench_items[ench_item.id] = ench_item
+
         self.items = list(combined_items.values())
+        self.enchanted_items = list(combined_ench_items.values())
+
+    def __add__(self, other):
+        if not isinstance(other, ItemGroup):
+            return NotImplemented
+        combined = ItemGroup(
+            regular_items=(self.items + other.items),
+            enchanted_items=(self.enchanted_items + other.enchanted_items),
+            rolls=(self.rolls + other.rolls),
+        )
+        return combined
 
     def __repr__(self) -> str:
+        self.items.sort(key=lambda x: str(x))
+        self.enchanted_items.sort(key=lambda x: str(x))
         return (
-            f"ItemGroup"
+            f"ItemGroup : {self.rolls} rolls"
             f"\n{'\n'.join(str(item) for item in self.items)}"
             f"\n{'\n'.join(str(item) for item in self.enchanted_items)}"
         )
@@ -125,14 +166,14 @@ class LootTable:
         self.weights.append(loot.weight)
 
     def generate(self) -> ItemGroup:
-        num_rolls = random.randint(self.min_rolls, self.max_rolls)
+        rolls = random.randint(self.min_rolls, self.max_rolls)
         chosen_loot = random.choices(
             self.loots,
             weights=self.weights,
-            k=num_rolls
+            k=rolls
         )
         items = [loot.generate() for loot in chosen_loot]
-        item_group = ItemGroup(items)
+        item_group = ItemGroup(items=items, rolls=rolls)
         return item_group
 
     def __repr__(self) -> str:
