@@ -8,7 +8,7 @@ TABLE_DIR = ROOT / "loot-tables-1-16"
 
 class Item:
 
-    def __init__(self, name: str, count: int):
+    def __init__(self, name: str, count: int = 1):
         self.name = name
         self.count = count
 
@@ -22,9 +22,18 @@ class Item:
 
 class EnchantedItem(Item):
 
-    def __init__(self, name: str):
+    def __init__(
+        self,
+        name: str,
+        enchantment: str | None = None,
+        level: int = 1,
+    ):
         super().__init__(name, 1)
-        self.enchantment, self.level = self.get_enchantment()
+        if enchantment is not None:
+            self.enchantment = enchantment
+            self.level = level
+        else:
+            self.enchantment, self.level = self.get_enchantment()
 
     def get_enchantment(self) -> tuple[str, int]:
         with open("enchantment.json") as fp:
@@ -68,6 +77,14 @@ class ItemGroup:
         self.enchanted_items = [item for item in items if isinstance(item, EnchantedItem)] + enchanted_items
         self.rolls = rolls
         self.combine_stacks()
+
+    @classmethod
+    def merge(cls, *item_groups: "ItemGroup"):
+        return cls(
+            regular_items=[item for item_group in item_groups for item in item_group.items],
+            enchanted_items=[ench_item for item_group in item_groups for ench_item in item_group.enchanted_items],
+            rolls=sum(item_group.rolls for item_group in item_groups),
+        )
 
     def combine_stacks(self):
         combined_items = {}
