@@ -133,7 +133,6 @@ def main():
             "completable",
             "edible",
             "nuggets",
-            "couri"
         ],
         help="The requirement function to use"
     )

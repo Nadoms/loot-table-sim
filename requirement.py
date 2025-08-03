@@ -118,11 +118,6 @@ class ReqFuncs:
         return group.release(obsidian)
 
     @classmethod
-    def couri(cls, group: ItemGroup):
-        obsidian = Item("obsidian", 8)
-        return group.release(obsidian)
-
-    @classmethod
     def determine_obby_count(cls):
         rp_id = randint(0, 99)
         rp_no = 0
