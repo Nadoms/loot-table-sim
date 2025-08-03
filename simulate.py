@@ -3,13 +3,17 @@ import itertools
 from pathlib import Path
 
 from loot_table import *
+from requirement import pick_req
+from util import LoadingBar
 
 
 def get_groups(table_path: Path, chests: int) -> list[ItemGroup]:
     table = read_table(table_path)
     item_groups = []
 
-    for _ in range(chests):
+    bar = LoadingBar()
+    for i in range(chests):
+        bar.load(i / chests)
         item_group = table.generate()
         item_groups.append(item_group)
 
@@ -83,15 +87,22 @@ class ItemCombo:
 def simulate(
     table_path: Path,
     chests: int,
+    requirements_str: list[str],
     str_items: list[str],
     str_ench_items: list[str],
 ):
+    print("// Simulating chests...")
     item_groups = get_groups(table_path, chests)
+
+    print("// Checking requirements...")
+    requirement = pick_req(requirements_str)
+    print(requirement.combo_names)
+    print(requirement.check_all(item_groups))
     items = parse_items(str_items)
     ench_items = parse_items(str_ench_items)
-    idk = analyse_groups(item_groups, chests, items, ench_items)
+    # idk = analyse_groups(item_groups, chests, items, ench_items)
     mega_group = ItemGroup.merge(*item_groups)
-    print(mega_group)
+    # print(mega_group)
 
 
 def main():
@@ -111,12 +122,28 @@ def main():
         help="Number of chests to simulate",
     )
     argparser.add_argument(
+        "-r",
+        "--requirements",
+        type=str,
+        default=["noreq"],
+        nargs="*",
+        choices=[
+            "noreq",
+            "lightable",
+            "completable",
+            "edible",
+            "nuggets",
+            "couri"
+        ],
+        help="The requirement function to use"
+    )
+    argparser.add_argument(
         "-i",
         "--items",
         type=str,
         default=[],
         nargs="*",
-        help="The items to focus the report on"
+        help="The regular items to focus the report on"
     )
     argparser.add_argument(
         "-e",
@@ -127,7 +154,7 @@ def main():
         help="The enchanted items to focus the report on"
     )
     args = argparser.parse_args()
-    simulate(args.table, args.chests, args.items, args.ench_items)
+    simulate(args.table, args.chests, args.requirements, args.items, args.ench_items)
 
 
 if __name__ == "__main__":

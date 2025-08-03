@@ -124,6 +124,26 @@ class ItemGroup:
         self.items = list(combined_items.values())
         self.enchanted_items = list(combined_ench_items.values())
 
+    def contains_at_least(self, required_item: Item):
+        if required_item not in self:
+            return False
+        contained_item = self.items[self.items.index(required_item)]
+        if required_item.count <= contained_item.count:
+            return True
+        return False
+
+    def release(self, required_item: Item):
+        if required_item not in self:
+            return False
+        contained_item = self.items[self.items.index(required_item)]
+        if contained_item.count < required_item.count:
+            return False
+        if contained_item.count == required_item.count:
+            self.items.remove(contained_item)
+            return True
+        contained_item.count -= required_item.count
+        return True
+
     @property
     def all_items(self) -> list[Item]:
         return self.items + self.enchanted_items
@@ -137,6 +157,9 @@ class ItemGroup:
             rolls=(self.rolls + other.rolls),
         )
         return combined
+
+    def __contains__(self, item: Item):
+        return item in self.all_items
 
     def __repr__(self) -> str:
         self.items.sort(key=lambda x: str(x))
