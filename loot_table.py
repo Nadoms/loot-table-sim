@@ -135,11 +135,15 @@ class ItemGroup:
     def release(self, required_item: Item):
         if required_item not in self:
             return False
-        contained_item = self.items[self.items.index(required_item)]
+        if isinstance(required_item, EnchantedItem):
+            item_list = self.enchanted_items
+        else:
+            item_list = self.items
+        contained_item = item_list[item_list.index(required_item)]
         if contained_item.count < required_item.count:
             return False
         if contained_item.count == required_item.count:
-            self.items.remove(contained_item)
+            item_list.remove(contained_item)
             return True
         contained_item.count -= required_item.count
         return True

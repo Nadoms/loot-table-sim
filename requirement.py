@@ -7,6 +7,27 @@ from loot_table import *
 from util import LoadingBar
 
 
+def parse_items(str_items: list[str]) -> list[Item]:
+    items = []
+    for str_item in str_items:
+        item_info = str_item.split(":")
+        name = item_info[0]
+
+        if len(item_info) == 1:
+            item = Item(name=name)
+        elif len(item_info) == 2:
+            count = int(item_info[1])
+            item = Item(name=name, count=count)
+        elif len(item_info) == 4:
+            count = int(item_info[1])
+            enchantment = item_info[2]
+            level = int(item_info[3])
+            item = EnchantedItem(name=name, count=count, enchantment=enchantment, level=level)
+        items.append(item)
+
+    return items
+
+
 class Req:
 
     def __init__(self, conditions: list[Callable[[ItemGroup], bool]]):
@@ -57,11 +78,21 @@ class Req:
 
 class MyReq(Req):
 
-    def __init__(self, requirements_str: list[str]):
+    def __init__(self,
+        str_requirements: list[str],
+        str_items: list[str],
+        str_ench_items: list[str],
+    ):
         requirements = [
             eval("ReqFuncs." + requirement_str)
             for requirement_str
-            in requirements_str
+            in str_requirements
+        ] + [
+            ReqFuncs.item_requirement(item)
+            for item in parse_items(str_items)
+        ] + [
+            ReqFuncs.item_requirement(item)
+            for item in parse_items(str_ench_items)
         ]
         super().__init__(requirements)
 
@@ -126,6 +157,16 @@ class ReqFuncs:
             if rp_id < rp_no:
                 return obby_count
 
+    @classmethod
+    def item_requirement(cls, item: Item) -> Callable[[ItemGroup], bool]:
+        def requirement(group: ItemGroup):
+            return group.release(item)
+        return requirement
 
-def pick_req(requirements_str: list[str]) -> (Req):
-    return MyReq(requirements_str)
+
+def pick_req(
+    str_requirements: list[str],
+    str_items: list[str],
+    str_ench_items: list[str]
+) -> (Req):
+    return MyReq(str_requirements, str_items, str_ench_items)
