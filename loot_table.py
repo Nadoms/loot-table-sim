@@ -71,16 +71,21 @@ class EnchantedItem(Item):
             return False
         return (
             self.name == other.name
-            and self.enchantment == other.enchantment
+            and (
+                self.enchantment == "any"
+                or other.enchantment == "any"
+                or self.enchantment == other.enchantment
+            )
         )
 
     def __eq__(self, other):
-        if not isinstance(other, EnchantedItem):
-            return False
         return (
-            self.name == other.name
-            and self.enchantment == other.enchantment
-            and self.level == other.level
+            self.same_enchanted_item(other)
+            and (
+                self.level == 0
+                or other.level == 0
+                or self.level == other.level
+            )
         )
 
 
@@ -88,11 +93,14 @@ class ItemGroup:
 
     def __init__(
         self,
-        items: list[Item] = [],
-        regular_items: list[Item] = [],
-        enchanted_items: list[EnchantedItem] = [],
+        items: list[Item] = None,
+        regular_items: list[Item] = None,
+        enchanted_items: list[EnchantedItem] = None,
         rolls: int = 0,
     ):
+        items = items if items else []
+        regular_items = regular_items if regular_items else []
+        enchanted_items = enchanted_items if enchanted_items else []
         self.items = [item for item in items if not isinstance(item, EnchantedItem)] + regular_items
         self.enchanted_items = [item for item in items if isinstance(item, EnchantedItem)] + enchanted_items
         self.rolls = rolls
@@ -216,18 +224,18 @@ class StackableLoot(Loot):
         )
 
 
-class LootTable:
+class LootPool:
 
     def __init__(
         self,
         min_rolls: int,
         max_rolls: int,
-        loots: list[Loot] = [],
+        loots: list[Loot] = None,
     ):
         self.min_rolls = min_rolls
         self.max_rolls = max_rolls
-        self.loots = loots
-        self.weights = [loot.weight for loot in loots]
+        self.loots = loots if loots else []
+        self.weights = [loot.weight for loot in self.loots]
 
     def add_loot(self, loot: Loot):
         self.loots.append(loot)
@@ -246,21 +254,64 @@ class LootTable:
 
     def __repr__(self) -> str:
         return (
-            f"LootTable : {self.min_rolls}-{self.max_rolls} rolls : {self.total_weight} weight"
-            f"\n{'\n'.join(str(loot) for loot in self.loots)}"
+            f"LootPool : {self.min_rolls}-{self.max_rolls} rolls : {sum(self.weights)} weight"
+            f"\n{'\n'.join('\t' + str(loot) for loot in self.loots)}"
+        )
+
+
+class LootTable:
+
+    def __init__(
+        self,
+        pools: list[LootPool] = None,
+        chests: int = 1
+    ):
+        self.pools = pools if pools else []
+        self.size = len(self.pools)
+        self.chests = chests
+
+    def add_pool(self, pool: LootPool):
+        self.size += 1
+        self.pools.append(pool)
+
+    def generate(self) -> ItemGroup:
+        group = ItemGroup.merge(
+            *(
+                pool.generate()
+                for pool
+                in self.pools
+                for i
+                in range(self.chests)
+            )
+        )
+        return group
+
+    def __repr__(self) -> str:
+        return (
+            f"LootTable : {self.size} size"
+            f"\n{'\n'.join('\t' + str(pool) for pool in self.pools)}"
         )
 
 
 def read_entry(entry: dict) -> Loot:
     functions = [function_data["function"] for function_data in entry.get("functions", [])]
-    name = entry["name"].replace("minecraft:", "")
+    if entry["type"] == "minecraft:empty":
+        name = "nothing"
+    else:
+        name = entry["name"].replace("minecraft:", "")
     weight = entry.get("weight", 1)
-    if "minecraft:set_count" in functions:
+    set_count = next((f for f in entry.get("functions", []) if f["function"] == "minecraft:set_count"), None)
+    if set_count:
+        if isinstance(set_count["count"], int):
+            min_count = max_count = set_count["count"]
+        else:
+            min_count = set_count["count"]["min"]
+            max_count = set_count["count"]["max"]
         loot = StackableLoot(
             name,
             weight,
-            entry["functions"][0]["count"]["min"],
-            entry["functions"][0]["count"]["max"],
+            int(min_count),
+            int(max_count),
         )
     elif "minecraft:enchant_randomly" in functions:
         loot = EnchantableLoot(name, weight)
@@ -274,18 +325,24 @@ def read_table(path: Path) -> LootTable:
     with open(path) as fp:
         raw_table = json.load(fp)
 
-    for pool in raw_table["pools"]:
-        table = LootTable(pool["rolls"]["min"], pool["rolls"]["max"])
+    table = LootTable(chests=1)
 
-        for entry in pool["entries"]:
+    for raw_pool in raw_table["pools"]:
+        if isinstance(raw_pool["rolls"], int):
+            pool = LootPool(raw_pool["rolls"], raw_pool["rolls"])
+        else:
+            pool = LootPool(int(raw_pool["rolls"]["min"]), int(raw_pool["rolls"]["max"]))
+
+        for entry in raw_pool["entries"]:
             loot = read_entry(entry)
-            table.add_loot(loot)
+            pool.add_loot(loot)
+        table.add_pool(pool)
 
     return table
 
 
 def main():
-    table_path = TABLE_DIR / "ruined_portal.json"
+    table_path = TABLE_DIR / "bastion.json"
     print(read_table(table_path))
 
 
