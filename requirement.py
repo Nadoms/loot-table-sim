@@ -81,7 +81,6 @@ class MyReq(Req):
     def __init__(self,
         str_requirements: list[str],
         str_items: list[str],
-        str_ench_items: list[str],
     ):
         requirements = [
             eval("ReqFuncs." + requirement_str)
@@ -90,9 +89,6 @@ class MyReq(Req):
         ] + [
             ReqFuncs.item_requirement(item)
             for item in parse_items(str_items)
-        ] + [
-            ReqFuncs.item_requirement(item)
-            for item in parse_items(str_ench_items)
         ]
         super().__init__(requirements)
 
@@ -167,6 +163,5 @@ class ReqFuncs:
 def pick_req(
     str_requirements: list[str],
     str_items: list[str],
-    str_ench_items: list[str]
 ) -> (Req):
-    return MyReq(str_requirements, str_items, str_ench_items)
+    return MyReq(str_requirements, str_items)

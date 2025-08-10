@@ -25,13 +25,12 @@ def simulate(
     chests: int,
     str_requirements: list[str],
     str_items: list[str],
-    str_ench_items: list[str],
 ):
     print("// Simulating chests...")
     item_groups = get_groups(table_path, chests)
 
     print("// Checking requirements...")
-    requirement = pick_req(str_requirements, str_items, str_ench_items)
+    requirement = pick_req(str_requirements, str_items)
     print(requirement.combo_names)
     print(requirement.check_all(item_groups))
 
@@ -76,18 +75,10 @@ def main():
         type=str,
         default=[],
         nargs="*",
-        help="The regular items to focus the report on"
-    )
-    argparser.add_argument(
-        "-e",
-        "--ench-items",
-        type=str,
-        default=[],
-        nargs="*",
-        help="The enchanted items to focus the report on"
+        help="Add a requirement for an item, in the form <ITEM_NAME>:<MIN_COUNT>:<ENCHANT_NAME>:<ENCHANT_LEVEL> (enchants are optional)"
     )
     args = argparser.parse_args()
-    simulate(args.table, args.chests, args.requirements, args.items, args.ench_items)
+    simulate(args.table, args.chests, args.requirements, args.items)
 
 
 if __name__ == "__main__":
